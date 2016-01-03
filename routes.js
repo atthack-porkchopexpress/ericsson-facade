@@ -47,13 +47,15 @@ module.exports = function(config) {
         }
         response = JSON.parse(response); // GET's don't automatically convert
 
+        var set = response.statusReport.stops;
+
         if (req.params.stopId) {
-          response = response.statusReport.stops.filter(function(stop) {
+          set = set.filter(function(stop) {
             return stop.stopId == req.params.stopId;
           })[0] || {};
         }
 
-        res.json(response);
+        res.json(set);
       });
     })
     .post(function(req, res) {
