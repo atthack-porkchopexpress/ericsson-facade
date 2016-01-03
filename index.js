@@ -1,6 +1,7 @@
 var express = require('express');
 var winston = require('winston');
 var expressWinston = require('express-winston');
+var cors = require('cors');
 var util = require('util');
 var app = express();
 
@@ -15,6 +16,8 @@ app.use(expressWinston.logger({
   expressFormat: true,
   colorStatus: true
 }));
+
+app.use(cors());
 
 var routes = require('./routes')();
 app.use(routes);
