@@ -8,11 +8,11 @@ var app = express();
 app.use(expressWinston.logger({
   transports: [
     new winston.transports.Console({
-      json: true,
+      json: false,
       colorize: true
     })
   ],
-  meta: true,
+  meta: false,
   expressFormat: true,
   colorStatus: true
 }));
