@@ -2,7 +2,9 @@
 
 For the ATT Hackathon
 
-API
+## API
+
+*not the most RESTful API but don't want to change it at this point in hackathon*
 
 ```
 // get all stop information
