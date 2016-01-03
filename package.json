@@ -1,0 +1,19 @@
+{
+  "name": "atthack",
+  "version": "1.0.0",
+  "description": "AT&T Hackathon 2016",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Code Chops",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^1.5.0",
+    "body-parser": "^1.14.2",
+    "express": "^4.13.3",
+    "express-winston": "^1.2.0",
+    "request": "^2.67.0",
+    "winston": "^2.1.1"
+  }
+}
