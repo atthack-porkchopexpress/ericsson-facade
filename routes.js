@@ -52,6 +52,24 @@ module.exports = function(config) {
       });
     });
 
+  router.route('/v1/ericsson/route/stop/:stopId')
+    .post(function(req, res, next) {
+      request({
+        url: 'http://delta.hack.att.io:5000/luigi/v1/emulate/current_bus_stop_id',
+        method: 'POST',
+        json: {
+          "currentBusStopId": req.params.stopId
+        }
+      }, function(err, status, response) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json(err);
+        }
+
+        res.status(201).end();
+      });
+    });
+
   router.route('/v1/ericsson/route/:stopId?')
     .get(function(req, res, next) {
       request({
