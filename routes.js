@@ -34,6 +34,24 @@ module.exports = function(config) {
   });
 
 
+  router.route('/v1/ericsson/status')
+    .get(function(req, res, next) {
+      request({
+        url: 'http://delta.hack.att.io:3000/remoteservices/v1/vehicle/status/' + vin1 + '/' + req.atthack.requestId,
+        method: 'GET',
+        headers: apiHeader
+      }, function(err, status, response) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json(err);
+        }
+        response = JSON.parse(response); // GET's don't automatically convert
+        delete response.statusReport.stops;
+
+        res.json(response);
+      });
+    });
+
   router.route('/v1/ericsson/route/:stopId?')
     .get(function(req, res, next) {
       request({
@@ -92,7 +110,6 @@ module.exports = function(config) {
 
         var incr = result[0];
 
-        console.log('====asdf=asdf=asdf=asdf', incr);
 
         // either post count to specific bus stop or to all of them
         async.series([
@@ -111,7 +128,7 @@ module.exports = function(config) {
                 // must convert...
                 response = JSON.parse(response);
 
-                var stops = response.statusReport.stops.map(function(stop) {
+                var stops = response.map(function(stop) {
                   return stop.stopId;
                 });
 
@@ -124,7 +141,6 @@ module.exports = function(config) {
           }
         ], function(err, result) {
           async.each(result[0], function(stopId, done) {
-console.log('888888888888888888', stopId);
             request({
               url: 'http://delta.hack.att.io:5000/luigi/v1/emulate/bus_stop_load',
               method: 'POST',
@@ -138,11 +154,9 @@ console.log('888888888888888888', stopId);
                 return done(err);
               }
 
-console.log('-asdf-asdf-asdf-', response);
               done(null);
             });
           }, function(err) {
-console.log('-asdfuu77sadf7asdf77asdf', err);
             if (err) {
               return res.status(500).json(err);
             }
