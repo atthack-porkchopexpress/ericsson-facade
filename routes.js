@@ -159,6 +159,12 @@ module.exports = function(config) {
           }
         ], function(err, result) {
           async.each(result[0], function(stopId, done) {
+            // noop stats collection
+            sendStats({
+              "stopId": stopId,
+              "count": incr
+            }, function() {});
+
             request({
               url: 'http://delta.hack.att.io:5000/luigi/v1/emulate/bus_stop_load',
               method: 'POST',
@@ -186,24 +192,6 @@ module.exports = function(config) {
     });
 
 
-
-
-  /*
-   * to get bus status
-   * GET http://delta.hack.att.io:3000/remoteservices/v1/vehicle/status/6795063081/5768825325
-   *
-   *
-   * to update the number of people at a bus stop
-   *
-  
-curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d '{
-  "busStopId": "1662",
-    "busStopLoad": 25
-    }' 'http://delta.hack.att.io:5000/luigi/v1/emulate/bus_stop_load'
-
-   *
-   */
-
   function getRequestId(callback) {
     request({
       method: 'POST',
@@ -215,6 +203,23 @@ curl -X POST --header 'Content-Type: application/json' --header 'Accept: applica
         // "accuracy": 6
       }
     }, callback);
+  }
+
+  function sendStats(json, callback) {
+    request({
+      url: 'https://run-west.att.io/670aa186dc462/1ac4fc71faf6/ca20c0fca6e536a/in/flow/busstop/data',
+      method: 'POST',
+      json: json
+    }, function(err, status, response) {
+      console.log('======= M2X =======', err, status && status.statusCode, response);
+
+      if (err) {
+        console.error(err);
+        return callback(err);
+      }
+
+      callback(null, response);
+    });
   }
 
   return router;
