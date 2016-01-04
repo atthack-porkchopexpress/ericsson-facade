@@ -1,11 +1,10 @@
+var express = require('express');
+var request = require('request');
+var async = require('async');
+var bodyParser = require('body-parser');
+var router = express.Router();
+
 module.exports = function(config) {
-  var express = require('express');
-  var request = require('request');
-  var async = require('async');
-  var bodyParser = require('body-parser');
-  var router = express.Router();
-
-
   // constants
   const apiHeader = {
     'APIKey': 'api-key-1234',
@@ -13,7 +12,6 @@ module.exports = function(config) {
     'Accept': 'application/json'
   };
   const vin1 = 6795063081;
-
 
   // initial middleware
   router.use(bodyParser.json());
@@ -206,19 +204,41 @@ module.exports = function(config) {
   }
 
   function sendStats(json, callback) {
-    request({
-      url: 'https://run-west.att.io/670aa186dc462/1ac4fc71faf6/ca20c0fca6e536a/in/flow/busstop/data',
-      method: 'POST',
-      json: json
-    }, function(err, status, response) {
-      console.log('======= M2X =======', err, status && status.statusCode, response);
+    async.parallel([
+      function(done) {
+        request({
+          url: 'https://run-west.att.io/670aa186dc462/1ac4fc71faf6/ca20c0fca6e536a/in/flow/busstop/data',
+          method: 'POST',
+          json: json
+        }, function(err, status, response) {
+          console.log('======= M2X =======', err, status && status.statusCode, response);
+          done(err, response);
+        });
+      },
 
+      function(done) {
+        request({
+          // url: 'http://api-m2x.att.com/v2/devices/4680e338f670a00bbd10a150fd885cbc/streams/Request',
+          url: 'http://api-m2x.att.com/v2/devices/4680e338f670a00bbd10a150fd885cbc/streams/Request/value',
+          method: 'PUT',
+          json: { "value": Date.now() },
+          // json: { "display_name": "Request", "unit": { "label": "stop" } },
+          // json: { values: { stop: [ {timestamp: 'iso', value: 43} ] } },
+          headers: {
+            'X-M2X-KEY': '1418a06547094a20c294304069b73dc9'
+          }
+        }, function(err, status, response) {
+          console.log('======= M2X -Skip =======', err, status && status.statusCode, response);
+          done(err, response);
+        });
+      }
+    ], function(err, result) {
       if (err) {
         console.error(err);
         return callback(err);
       }
 
-      callback(null, response);
+      callback(null, result);
     });
   }
 
